@@ -13,6 +13,11 @@
   <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
     <DefineConstants>$(DefineConstants);netstandard</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net452'">
+    <!-- Make .NET 4.5 reference assemblies available even on Linux -->
+    <RestoreAdditionalProjectSources>https://dotnet.myget.org/F/dotnet-core/api/v3/index.json</RestoreAdditionalProjectSources>
+    <FrameworkPathOverride>$(NuGetPackageRoot)microsoft.targetingpack.netframework.v4.5.2/1.0.1/lib/net452/</FrameworkPathOverride>
+  </PropertyGroup>
 
   <PropertyGroup>
     <Authors>Rex Morgan</Authors>
@@ -29,7 +34,12 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='net452'">
+    <!-- Make sure the reference assemblies are available -->
+    <PackageReference Include="Microsoft.TargetingPack.NETFramework.v4.5.2"
+                      Version="1.0.1" ExcludeAssets="All" PrivateAssets="All" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.IO" />
+    <Reference Include="System.Runtime" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.3'">
