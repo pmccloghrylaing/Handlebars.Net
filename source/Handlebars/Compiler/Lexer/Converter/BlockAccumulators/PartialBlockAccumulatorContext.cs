@@ -19,7 +19,7 @@ namespace HandlebarsDotNet.Compiler
 
         public override void HandleElement(Expression item)
         {
-            _body.Add((Expression)item);
+            _body.Add(item);
         }
 
         public override Expression GetAccumulatedBlock()
@@ -27,7 +27,7 @@ namespace HandlebarsDotNet.Compiler
             return HandlebarsExpression.Partial(
                 _startingNode.PartialName,
                 _startingNode.Argument,
-                _body.Count > 1 ? Expression.Block(_body) : _body.First());
+                _body.Count > 1 ? Expression.Block(_body) : _body.FirstOrDefault());
         }
 
         public override bool IsClosingElement(Expression item)

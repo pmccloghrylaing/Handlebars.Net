@@ -552,6 +552,29 @@ namespace HandlebarsDotNet.Test
         }
 
         [Fact]
+        public void BlockPartialWithNestedSpecialNamedBlockPartial()
+        {
+            string source1 = "Well, {{#>partial}}some test{{/partial}} !";
+            string source2 = "Well, {{#>partial}}{{/partial}} !";
+
+            var template1 = Handlebars.Compile(source1);
+            var template2 = Handlebars.Compile(source2);
+
+            var partialSource = "this is {{#>@partial-block }}some default{{/@partial-block}} content that works great";
+            using (var reader = new StringReader(partialSource))
+            {
+                var partialTemplate = Handlebars.Compile(reader);
+                Handlebars.RegisterTemplate("partial", partialTemplate);
+            }
+            
+            var result1 = template1(null);
+            Assert.Equal("Well, this is some test content that works great !", result1);
+
+            var result2 = template2(null);
+            Assert.Equal("Well, this is some default content that works great !", result2);
+        }
+
+        [Fact]
         public void BlockPartialWithNestedSpecialNamedPartial2()
         {
             string source = "A {{#>partial1}} B {{#>partial2}} {{VarC}} {{/partial2}} D {{/partial1}} E";

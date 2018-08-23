@@ -41,7 +41,7 @@ namespace HandlebarsDotNet.Compiler
             Expression bindingContext = CompilationContext.BindingContext;
 
             var fb = new FunctionBuilder(CompilationContext.Configuration);
-            var partialBlockTemplate = pex.Fallback == null ? null : fb.Compile(new[] {pex.Fallback}, null, null);
+            var partialBlockTemplate = pex.Fallback == null ? null : fb.Compile(new[] {pex.Fallback}, bindingContext, null);
 
             if (pex.Argument != null || partialBlockTemplate != null)
             {
@@ -54,12 +54,13 @@ namespace HandlebarsDotNet.Compiler
 
             var partialInvocation = Expression.Call(
 #if netstandard
-                new Action<string, BindingContext, HandlebarsConfiguration>(InvokePartialWithFallback).GetMethodInfo(),
+                new Action<string, BindingContext, BindingContext, HandlebarsConfiguration>(InvokePartialWithFallback).GetMethodInfo(),
 #else
-                new Action<string, BindingContext, HandlebarsConfiguration>(InvokePartialWithFallback).Method,
+                new Action<string, BindingContext, BindingContext, HandlebarsConfiguration>(InvokePartialWithFallback).Method,
 #endif
                 Expression.Convert(pex.PartialName, typeof(string)),
                 bindingContext,
+                CompilationContext.BindingContext,
                 Expression.Constant(CompilationContext.Configuration));
 
             return partialInvocation;
@@ -68,9 +69,10 @@ namespace HandlebarsDotNet.Compiler
         private static void InvokePartialWithFallback(
             string partialName,
             BindingContext context,
+            BindingContext parentContext,
             HandlebarsConfiguration configuration)
         {
-            if (!InvokePartial(partialName, context, configuration))
+            if (!InvokePartial(partialName, context, parentContext, configuration))
             {
                 if (context.PartialBlockTemplate == null)
                     throw new HandlebarsRuntimeException(
@@ -83,16 +85,17 @@ namespace HandlebarsDotNet.Compiler
         private static bool InvokePartial(
             string partialName,
             BindingContext context,
+            BindingContext parentContext,
             HandlebarsConfiguration configuration)
         {
             if (partialName.Equals(SpecialPartialBlockName))
             {
-                if (context.PartialBlockTemplate == null)
+                if (parentContext.PartialBlockTemplate == null)
                 {
                     return false;
                 }
 
-                context.PartialBlockTemplate(context.TextWriter, context);
+                parentContext.PartialBlockTemplate(context.TextWriter, context);
                 return true;
             }
 

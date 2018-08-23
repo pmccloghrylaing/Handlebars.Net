@@ -35,6 +35,8 @@ namespace HandlebarsDotNet.Compiler
                     return VisitHelperExpression((HelperExpression)exp);
                 case HandlebarsExpressionType.BlockExpression:
                     return VisitBlockHelperExpression((BlockHelperExpression)exp);
+                case HandlebarsExpressionType.HashParameterAssignmentExpression:
+                    return exp;
                 case HandlebarsExpressionType.HashParametersExpression:
                     return VisitHashParametersExpression((HashParametersExpression)exp);
                 case HandlebarsExpressionType.PathExpression:

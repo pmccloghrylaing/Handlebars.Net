@@ -62,7 +62,7 @@ namespace HandlebarsDotNet.Compiler
                     }
                     else
                     {
-                        parameters.Add(parameterAssignment.Name, value);
+                        parameters.Add(parameterAssignment.Name, Visit(value));
                     }
                 }
                 else
@@ -83,19 +83,25 @@ namespace HandlebarsDotNet.Compiler
 
         Expression Visit(Expression expression)
         {
+            if (expression is HelperExpression helperExpression)
+            {
+                var originalArguments = helperExpression.Arguments.ToArray();
+                var arguments = ConvertTokens(originalArguments)
+                    .Cast<Expression>()
+                    .ToArray();
+                if (!arguments.SequenceEqual(originalArguments))
+                {
+                    return HandlebarsExpression.Helper(
+                        helperExpression.HelperName,
+                        arguments);
+                }
+            }
             if (expression is SubExpressionExpression subExpression)
             {
-                if (subExpression.Expression is HelperExpression helperExpression)
+                Expression childExpression = Visit(subExpression.Expression);
+                if (childExpression != subExpression.Expression)
                 {
-                    var originalArguments = helperExpression.Arguments.ToArray();
-                    var arguments = ConvertTokens(originalArguments).Cast<Expression>().ToArray();
-                    if (!arguments.SequenceEqual(originalArguments))
-                    {
-                        return HandlebarsExpression.SubExpression(
-                            HandlebarsExpression.Helper(
-                                helperExpression.HelperName,
-                                arguments));
-                    }
+                    return HandlebarsExpression.SubExpression(childExpression);
                 }
             }
             return expression;
