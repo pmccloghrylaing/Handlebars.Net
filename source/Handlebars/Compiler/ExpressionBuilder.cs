@@ -27,6 +27,7 @@ namespace HandlebarsDotNet.Compiler
             tokens = ExpressionScopeConverter.Convert(tokens);
             tokens = WhitespaceRemover.Remove(tokens);
             tokens = StaticConverter.Convert(tokens);
+            tokens = ElseIfExpander.Expand(tokens, _configuration);
             tokens = BlockAccumulator.Accumulate(tokens, _configuration);
             return tokens.Cast<Expression>();
         }
