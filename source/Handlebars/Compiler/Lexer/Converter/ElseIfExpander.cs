@@ -42,7 +42,8 @@ namespace HandlebarsDotNet.Compiler
                         yield return expression;
                     }
 
-                    if (IsClosingElement((Expression)enumerator.Current, blockName)
+                    item = (Expression)enumerator.Current;
+                    if (IsClosingElement(item, blockName)
                         && enumerator.Current is StatementExpression endStatement)
                     {
                         yield return HandlebarsExpression.Statement(
@@ -53,7 +54,8 @@ namespace HandlebarsDotNet.Compiler
                     }
                     else
                     {
-                        throw new InvalidOperationException();
+                        throw new HandlebarsCompilerException(
+                            $"Unexpected expression '{item}', expected closing element for '{blockName}'");
                     }
                 }
                 else
