@@ -84,14 +84,11 @@ namespace HandlebarsDotNet.Compiler
         protected virtual Expression VisitBlockHelperExpression(BlockHelperExpression bhex)
         {
             var arguments = VisitExpressionList(bhex.Arguments);
-            Expression body = Visit(bhex.Body);
-            Expression inversion = Visit(bhex.Inversion);
+            // Don't visit Body/Inversion - they will be compiled separately
 
-            if (arguments != bhex.Arguments
-                || body != bhex.Body
-                || inversion != bhex.Inversion)
+            if (arguments != bhex.Arguments)
             {
-                return HandlebarsExpression.BlockHelper(bhex.HelperName, arguments, body, inversion);
+                return HandlebarsExpression.BlockHelper(bhex.HelperName, arguments, bhex.Body, bhex.Inversion);
             }
             return bhex;
         }
@@ -104,13 +101,11 @@ namespace HandlebarsDotNet.Compiler
         protected virtual Expression VisitIteratorExpression(IteratorExpression iex)
         {
             Expression sequence = Visit(iex.Sequence);
-            Expression template = Visit(iex.Template);
-            Expression ifEmpty = Visit(iex.IfEmpty);
-            if (sequence != iex.Sequence
-                || template != iex.Template
-                || ifEmpty != iex.IfEmpty)
+            // Don't visit Template/IfEmpty - they will be compiled separately
+
+            if (sequence != iex.Sequence)
             {
-                return HandlebarsExpression.Iterator(sequence, template, ifEmpty);
+                return HandlebarsExpression.Iterator(sequence, iex.Template, iex.IfEmpty);
             }
             return iex;
         }
@@ -118,13 +113,11 @@ namespace HandlebarsDotNet.Compiler
         protected virtual Expression VisitDeferredSectionExpression(DeferredSectionExpression dsex)
         {
             PathExpression path = (PathExpression)Visit(dsex.Path);
-            BlockExpression body = (BlockExpression)VisitBlock(dsex.Body);
-            BlockExpression inversion = (BlockExpression)VisitBlock(dsex.Inversion);
-            if (path != dsex.Path
-                || body != dsex.Body
-                || inversion != dsex.Inversion)
+            // Don't visit Body/Inversion - they will be compiled separately
+
+            if (path != dsex.Path)
             {
-                return HandlebarsExpression.DeferredSection(path, body, inversion);
+                return HandlebarsExpression.DeferredSection(path, dsex.Body, dsex.Inversion);
             }
             return dsex;
         }
@@ -133,12 +126,12 @@ namespace HandlebarsDotNet.Compiler
         {
             Expression partialName = Visit(pex.PartialName);
             Expression argument = Visit(pex.Argument);
-            Expression fallback = Visit(pex.Fallback);
+            // Don't visit Fallback - it will be compiled separately
+
             if (partialName != pex.PartialName
-                || argument != pex.Argument
-                || fallback != pex.Fallback)
+                || argument != pex.Argument)
             {
-                return HandlebarsExpression.Partial(partialName, argument, fallback);
+                return HandlebarsExpression.Partial(partialName, argument, pex.Fallback);
             }
             return pex;
         }
